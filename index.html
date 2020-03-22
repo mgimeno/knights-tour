@@ -5,8 +5,11 @@
   <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 
   <style type="text/css">
+    * {
+      font-family: "Open Sans", sans-serif;
+    }
+
     body {
-      font: 400 14px/1.6 "Open Sans", sans-serif;
       color: #555;
     }
 
@@ -31,12 +34,12 @@
     .cell {
       border: 1px solid #666;
       text-align: center;
-      margin:0;
-      padding:0;
+      margin: 0;
+      padding: 0;
       display: inline-block;
       font-size: 16px;
       box-sizing: border-box;
-      width:40px;
+      width: 40px;
       height: 40px;
       line-height: 40px;
     }
@@ -55,20 +58,20 @@
 
     .index-cell-row {
       text-align: right;
-      border-color:white;
+      border-color: white;
     }
 
-    .index-cell-row .number{
-      margin-right:10px;
+    .index-cell-row .number {
+      margin-right: 10px;
     }
 
     .index-cell-col {
       text-align: center;
-      border-color:white;
+      border-color: white;
     }
 
     .index-cell-col-empty {
-      border-color:white;
+      border-color: white;
     }
 
     .form-item {
@@ -79,23 +82,23 @@
       font-weight: bold;
     }
 
-    input[type=number],
-    select {
-      font: 400 14px/1.6 "Open Sans", sans-serif;
+    input[type=number] {
       width: 110px;
       padding: 6px;
       border: none;
+      font-size: 15px;
     }
 
     button {
-      font: 400 14px/1.6 "Open Sans", sans-serif;
-      background-color: #ddd;
+      background-color: #5959a2;
+      color: #fff;
       padding: 5px 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #333;
     }
 
     button:hover {
       background-color: #fff;
+      color: #333;
       cursor: pointer;
     }
 
@@ -117,28 +120,28 @@
   <div id="start-screen">
     <h1>Options</h1>
     <div class="form-item">
-      <label for="numRows">ROWS</label>
-      <input type="number" min="0" id="numRows" value="8" />
+      <label for="numRows">NUMBER OF ROWS</label>
+      <input type="number" min="1" id="numRows" value="8" />
     </div>
     <div class="form-item">
-      <label for="numColumns">COLUMNS</label>
-      <input type="number" min="0" id="numColumns" value="8" />
+      <label for="numColumns">NUMBER OF COLUMNS</label>
+      <input type="number" min="1" id="numColumns" value="8" />
     </div>
     <div class="form-item">
       <label for="startRowIndex">START ROW INDEX</label>
-      <input type="number" min="1" id="startRowIndex" value="0" />
+      <input type="number" min="0" id="startRowIndex" value="0" />
     </div>
     <div class="form-item">
       <label for="startColumnIndex">START COLUMN INDEX</label>
-      <input type="number" min="1" id="startColumnIndex" value="0" />
+      <input type="number" min="0" id="startColumnIndex" value="0" />
     </div>
     <div class="form-item">
-      <label for="useWarnsdorfsRule">USE WANSDORFS RULE</label>
+      <label for="useWarnsdorfsRule">USE WARNSDORFF'S RULE</label>
       <input type="checkbox" checked id="useWarnsdorfsRule" />
     </div>
     <div class="form-item">
       <label for="maxProcessingTimeInMs">MAX PROCESSING TIME (sec)</label>
-      <input type="number" min="0" id="maxProcessingTimeInMs" value="10" />
+      <input type="number" min="1" id="maxProcessingTimeInMs" value="10" />
     </div>
     <div class="form-item">
       <label for="showSolutionDelay">SOLUTION REPLAY INTERVAL (ms)</label>
@@ -147,13 +150,13 @@
 
     <div class="form-item" style="overflow:auto;">
       <span id="info" style="float:left;"></span>
-      <button type="button" id="solve-button" onclick="startGame();" style="float:right;">SOLVE IT</button>
+      <button type="button" id="solve-button" onclick="startGame();" style="float:right;">SHOW SOLUTION</button>
     </div>
   </div>
 
   <div id="result-screen" style="display:none;text-align:center;">
-    <div>Solved in: <b id="result-solve-seconds"></b> seconds</div>
-    <div>Total cells: <b id="result-cell-count"></b></div>
+    <div>Solution found in <b id="result-solve-seconds"></b> seconds</div>
+    <div>Board: <b id="result-cell-count"></b> squares</div>
     <div>It needed <b id="result-moves-count"></b> moves to solve it</div>
     <br>
     <button onclick="goToStartScreen();">BACK TO OPTIONS</button>
@@ -175,8 +178,12 @@
   var pathNumber;
   var showSolutionTimeoutMs;
   var showSolutionDelay;
-  var showSolutionTimeoutsList;
+  var allTimeoutsList;
   var useWarnsdorfsRule;
+  var totalMovesCount;
+  var startTime;
+  var maxProcessingTimeInMs;
+  var maxProcessingTimeReached;
   var gameMoves = [{ row: -2, column: 1 },
   { row: -1, column: 2 },
   { row: 1, column: 2 },
@@ -185,13 +192,10 @@
   { row: 1, column: -2 },
   { row: -1, column: -2 },
   { row: -2, column: -1 }];
-  var totalMovesCount;
-  var startTime;
-  var maxProcessingTimeInMs;
-  var maxProcessingTimeReached;
-  
+
 
   function startGame() {
+    $('#solve-button').prop("disabled", true);
     $('#info').removeClass("error").text("Thinking...").show();
 
     //Timeout so it happens after info item is displayed
@@ -201,7 +205,6 @@
       solve();
     });
   }
-
 
   function setupVariables() {
     numRows = parseInt($('#numRows')[0].value);
@@ -216,7 +219,7 @@
     solutionGrid = [];
     solutionPath = [];
     showSolutionTimeoutMs = 0;
-    showSolutionTimeoutsList = [];
+    allTimeoutsList = [];
     totalMovesCount = 0;
 
     startTime = performance.now();
@@ -242,11 +245,12 @@
     if (findPath(startRowIndex, startColumnIndex, 0)) {
       showSolution();
     } else {
+      $('#solve-button').prop("disabled", false);
       $('#info').addClass("error");
       if (maxProcessingTimeReached) {
         $('#info').text("Max processing time reached");
       } else {
-        $('#info').text("There is no solution using this options");
+        $('#info').text("There is no solution in this scenario");
       }
     }
   }
@@ -271,7 +275,19 @@
     return _.sortBy(possibleMoves, "possibleMovesCount");
   }
 
+  function checkMaxProcessingTime() {
+    if ((performance.now() - startTime) > maxProcessingTimeInMs) {
+      maxProcessingTimeReached = true;
+    }
+  }
+
   function findPath(row, column, index) {
+
+    checkMaxProcessingTime();
+    if (maxProcessingTimeReached) {
+      return false;
+    }
+
     totalMovesCount++;
 
     pathNumber++;
@@ -284,11 +300,6 @@
       return true;
     }
 
-    // Program has been running for more than 'maxProcessingTimeInMs' ms -> stop
-    if ((performance.now() - startTime) > maxProcessingTimeInMs) {
-      maxProcessingTimeReached = true;
-      return false;
-    }
 
     if (useWarnsdorfsRule) {
       var sortedPossibleMoves = getWarnsdorfSortedPossibleMoves(row, column);
@@ -297,7 +308,9 @@
       for (var j = 0; j < sortedPossibleMoves.length; j++) {
         if (findPath(row + gameMoves[sortedPossibleMoves[j].gameMoveIndex].row, column + gameMoves[sortedPossibleMoves[j].gameMoveIndex].column, index + 1)) {
           return true;
-        } else if (maxProcessingTimeReached) {
+        }
+        checkMaxProcessingTime();
+        if (maxProcessingTimeReached) {
           break;
         }
 
@@ -307,9 +320,12 @@
       for (var z = 0; z < gameMoves.length; z++) {
         if (canMove(row + gameMoves[z].row, column + gameMoves[z].column) && findPath(row + gameMoves[z].row, column + gameMoves[z].column, index + 1)) {
           return true;
-        } else if (maxProcessingTimeReached) {
+        }
+        checkMaxProcessingTime();
+        if (maxProcessingTimeReached) {
           break;
         }
+
       }
     }
 
@@ -345,7 +361,7 @@
 
   function showSolution() {
     $('#result-solve-seconds').text(((performance.now() - startTime) / 1000).toFixed(4));
-    $('#result-cell-count').text(numRows * numColumns);
+    $('#result-cell-count').text(numRows + "x" + numColumns + " = " + (numRows * numColumns));
     $('#result-moves-count').text(totalMovesCount);
 
     $('#start-screen').hide();
@@ -380,7 +396,7 @@
     for (var i = 0; i < numRows; i++) {
       var row = "<div><div class='cell index-cell-row'><div class='number'>" + i + "</div></div>";
       for (var j = 0; j < numColumns; j++) {
-        row += "<div id='" + i + "_" + j + "' class='cell'>" + (showCellValues && solutionGrid[i][j] != null ? solutionGrid[i][j] : "&nbsp;") + "</div>";
+        row += "<div id='" + i + "_" + j + "' class='cell " + (showCellValues ? "used-cell" : "") + "'>" + (showCellValues && solutionGrid[i][j] != null ? solutionGrid[i][j] : "&nbsp;") + "</div>";
       }
       row += "</div>";
       $('#board').append(row);
@@ -398,19 +414,20 @@
 
 
     }, showSolutionTimeoutMs);
-    showSolutionTimeoutsList.push(timeoutId);
+    allTimeoutsList.push(timeoutId);
   }
 
   function goToStartScreen() {
-    clearSolutionTimeoutsList();
+    clearAllTimeoutsList();
     $('#result-screen').hide();
     $('#info').hide();
     $('#start-screen').show();
+    $('#solve-button').prop("disabled", false);
   }
 
-  function clearSolutionTimeoutsList() {
-    for (var i = 0; i < showSolutionTimeoutsList.length; i++) {
-      clearTimeout(showSolutionTimeoutsList[i]);
+  function clearAllTimeoutsList() {
+    for (var i = 0; i < allTimeoutsList.length; i++) {
+      clearTimeout(allTimeoutsList[i]);
     }
   }
 </script>
