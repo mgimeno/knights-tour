@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+
+  <style type="text/css">
+    body {
+      font: 400 14px/1.6 "Open Sans", sans-serif;
+      color: #555;
+    }
+
+    #start-screen {
+      width: 450px;
+      padding: 25px;
+      margin: 50px auto 0 auto;
+      border: 1px solid #ddd;
+    }
+
+    h1 {
+      font-size: 20px;
+      text-align: center;
+      margin: 10px 0 20px 0;
+    }
+
+    #board {
+      margin: 50px auto;
+      white-space: nowrap;
+    }
+
+    .cell {
+      border: 1px solid #666;
+      text-align: center;
+      margin:0;
+      padding:0;
+      display: inline-block;
+      font-size: 16px;
+      box-sizing: border-box;
+      width:40px;
+      height: 40px;
+      line-height: 40px;
+    }
+
+    .active-knight-cell {
+      color: #333;
+      font-size: 30px;
+      background-color: #5eb95e;
+      font-size: 17px;
+    }
+
+    .used-cell {
+      color: #fff;
+      background-color: #888;
+    }
+
+    .index-cell-row {
+      text-align: right;
+      border-color:white;
+    }
+
+    .index-cell-row .number{
+      margin-right:10px;
+    }
+
+    .index-cell-col {
+      text-align: center;
+      border-color:white;
+    }
+
+    .index-cell-col-empty {
+      border-color:white;
+    }
+
+    .form-item {
+      padding: 6px 0;
+    }
+
+    .form-item label {
+      font-weight: bold;
+    }
+
+    input[type=number],
+    select {
+      font: 400 14px/1.6 "Open Sans", sans-serif;
+      width: 110px;
+      padding: 6px;
+      border: none;
+    }
+
+    button {
+      font: 400 14px/1.6 "Open Sans", sans-serif;
+      background-color: #ddd;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+    }
+
+    button:hover {
+      background-color: #fff;
+      cursor: pointer;
+    }
+
+    #info {
+      color: rgb(16, 16, 150);
+      font-weight: bold;
+      position: relative;
+      top: 8px;
+    }
+
+    #info.error {
+      color: rgb(175, 29, 29);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="start-screen">
+    <h1>Options</h1>
+    <div class="form-item">
+      <label for="numRows">ROWS</label>
+      <input type="number" min="0" id="numRows" value="8" />
+    </div>
+    <div class="form-item">
+      <label for="numColumns">COLUMNS</label>
+      <input type="number" min="0" id="numColumns" value="8" />
+    </div>
+    <div class="form-item">
+      <label for="startRowIndex">START ROW INDEX</label>
+      <input type="number" min="1" id="startRowIndex" value="0" />
+    </div>
+    <div class="form-item">
+      <label for="startColumnIndex">START COLUMN INDEX</label>
+      <input type="number" min="1" id="startColumnIndex" value="0" />
+    </div>
+    <div class="form-item">
+      <label for="useWarnsdorfsRule">USE WANSDORFS RULE</label>
+      <input type="checkbox" checked id="useWarnsdorfsRule" />
+    </div>
+    <div class="form-item">
+      <label for="maxProcessingTimeInMs">MAX PROCESSING TIME (sec)</label>
+      <input type="number" min="0" id="maxProcessingTimeInMs" value="10" />
+    </div>
+    <div class="form-item">
+      <label for="showSolutionDelay">SOLUTION REPLAY INTERVAL (ms)</label>
+      <input type="number" min="0" id="showSolutionDelay" value="100" />
+    </div>
+
+    <div class="form-item" style="overflow:auto;">
+      <span id="info" style="float:left;"></span>
+      <button type="button" id="solve-button" onclick="startGame();" style="float:right;">SOLVE IT</button>
+    </div>
+  </div>
+
+  <div id="result-screen" style="display:none;text-align:center;">
+    <div>Solved in: <b id="result-solve-seconds"></b> seconds</div>
+    <div>Total cells: <b id="result-cell-count"></b></div>
+    <div>It needed <b id="result-moves-count"></b> moves to solve it</div>
+    <br>
+    <button onclick="goToStartScreen();">BACK TO OPTIONS</button>
+    <div id="board"></div>
+  </div>
+
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
+<script>
+  var numRows;
+  var numColumns;
+  var startRowIndex;
+  var startColumnIndex;
+  var solutionGrid;
+  var solutionPath;
+  var pathNumber;
+  var showSolutionTimeoutMs;
+  var showSolutionDelay;
+  var showSolutionTimeoutsList;
+  var useWarnsdorfsRule;
+  var gameMoves = [{ row: -2, column: 1 },
+  { row: -1, column: 2 },
+  { row: 1, column: 2 },
+  { row: 2, column: 1 },
+  { row: 2, column: -1 },
+  { row: 1, column: -2 },
+  { row: -1, column: -2 },
+  { row: -2, column: -1 }];
+  var totalMovesCount;
+  var startTime;
+  var maxProcessingTimeInMs;
+  var maxProcessingTimeReached;
+  
+
+  function startGame() {
+    $('#info').removeClass("error").text("Thinking...").show();
+
+    //Timeout so it happens after info item is displayed
+    setTimeout(function () {
+      setupVariables();
+
+      solve();
+    });
+  }
+
+
+  function setupVariables() {
+    numRows = parseInt($('#numRows')[0].value);
+    numColumns = parseInt($('#numColumns')[0].value);
+    startRowIndex = parseInt($('#startRowIndex')[0].value);
+    startColumnIndex = parseInt($('#startColumnIndex')[0].value);
+    showSolutionDelay = parseInt($('#showSolutionDelay')[0].value);
+    useWarnsdorfsRule = $('#useWarnsdorfsRule').prop('checked');
+    maxProcessingTimeInMs = (parseInt($('#maxProcessingTimeInMs')[0].value) * 1000);
+
+    pathNumber = 0;
+    solutionGrid = [];
+    solutionPath = [];
+    showSolutionTimeoutMs = 0;
+    showSolutionTimeoutsList = [];
+    totalMovesCount = 0;
+
+    startTime = performance.now();
+    maxProcessingTimeReached = false;
+
+    createSolutionArray();
+  }
+
+  function createSolutionArray() {
+    solutionGrid = new Array(numRows);
+    for (var i = 0; i < numRows; i++) {
+      solutionGrid[i] = new Array(numColumns);
+    }
+
+    for (var i = 0; i < numRows; i++) {
+      for (var j = 0; j < numColumns; j++) {
+        solutionGrid[i][j] = null;
+      }
+    }
+  }
+
+  function solve() {
+    if (findPath(startRowIndex, startColumnIndex, 0)) {
+      showSolution();
+    } else {
+      $('#info').addClass("error");
+      if (maxProcessingTimeReached) {
+        $('#info').text("Max processing time reached");
+      } else {
+        $('#info').text("There is no solution using this options");
+      }
+    }
+  }
+
+  function getWarnsdorfSortedPossibleMoves(row, column) {
+    //Possible next moves sorted by the number of moves that next cell has got. ASC.
+    var possibleMoves = [];
+
+    for (var gameMoveIndex = 0; gameMoveIndex < gameMoves.length; gameMoveIndex++) {
+      var nextMoveRow = row + gameMoves[gameMoveIndex].row;
+      var nextMoveCol = column + gameMoves[gameMoveIndex].column;
+
+      if (canMove(nextMoveRow, nextMoveCol)) {
+        var move = {
+          possibleMovesCount: (getNextPossibleMovesCount(nextMoveRow, nextMoveCol) - 1), // -1 not to count the current cell.
+          gameMoveIndex: gameMoveIndex
+        };
+        possibleMoves.push(move);
+      }
+    }
+
+    return _.sortBy(possibleMoves, "possibleMovesCount");
+  }
+
+  function findPath(row, column, index) {
+    totalMovesCount++;
+
+    pathNumber++;
+    // mark cell as used
+    solutionGrid[row][column] = pathNumber;
+    solutionPath[pathNumber] = { row: row, column: column };
+
+    if (index === ((numRows * numColumns) - 1)) {
+      //Solution found
+      return true;
+    }
+
+    // Program has been running for more than 'maxProcessingTimeInMs' ms -> stop
+    if ((performance.now() - startTime) > maxProcessingTimeInMs) {
+      maxProcessingTimeReached = true;
+      return false;
+    }
+
+    if (useWarnsdorfsRule) {
+      var sortedPossibleMoves = getWarnsdorfSortedPossibleMoves(row, column);
+
+      // Recursively find a path
+      for (var j = 0; j < sortedPossibleMoves.length; j++) {
+        if (findPath(row + gameMoves[sortedPossibleMoves[j].gameMoveIndex].row, column + gameMoves[sortedPossibleMoves[j].gameMoveIndex].column, index + 1)) {
+          return true;
+        } else if (maxProcessingTimeReached) {
+          break;
+        }
+
+      }
+    }
+    else { // Don't use WarnsdorfsRule
+      for (var z = 0; z < gameMoves.length; z++) {
+        if (canMove(row + gameMoves[z].row, column + gameMoves[z].column) && findPath(row + gameMoves[z].row, column + gameMoves[z].column, index + 1)) {
+          return true;
+        } else if (maxProcessingTimeReached) {
+          break;
+        }
+      }
+    }
+
+    // Path not found -> backtrack
+    solutionGrid[row][column] = null;
+    solutionPath[pathNumber] = null;
+    pathNumber--;
+    return false;
+  }
+
+  function canMove(row, col) {
+    if (row >= 0 && col >= 0 && row < numRows && col < numColumns && solutionGrid[row][col] == null) {
+      return true;
+    }
+    return false;
+  }
+
+  function getNextPossibleMovesCount(row, col) {
+
+    var count = 0;
+
+    for (var i = 0; i < gameMoves.length; i++) {
+      var nextMoveRow = row + gameMoves[i].row;
+      var nextMoveCol = col + gameMoves[i].column;
+
+      if (canMove(nextMoveRow, nextMoveCol)) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  function showSolution() {
+    $('#result-solve-seconds').text(((performance.now() - startTime) / 1000).toFixed(4));
+    $('#result-cell-count').text(numRows * numColumns);
+    $('#result-moves-count').text(totalMovesCount);
+
+    $('#start-screen').hide();
+    $('#board').empty();
+    $('#result-screen').show();
+
+    if (showSolutionDelay > 0) {
+
+      printBoard(false);
+
+      for (var s = 1; s < solutionPath.length; s++) {
+        showSolutionTimeoutMs += showSolutionDelay;
+        var cellId = "#" + solutionPath[s].row + "_" + solutionPath[s].column;
+        var cellValue = solutionGrid[solutionPath[s].row][solutionPath[s].column];
+        jumpOnCell(cellId, cellValue);
+      }
+    }
+    else {
+      printBoard(true);
+    }
+  }
+
+  function printBoard(showCellValues) {
+
+    var topIndexRow = "<div><div class='cell index-cell-col-empty'>&nbsp;</div>";
+    for (var t = 0; t < numColumns; t++) {
+      topIndexRow += "<div class='cell index-cell-col'>" + t + "</div>";
+    }
+    topIndexRow += "</div>";
+    $('#board').append(topIndexRow);
+
+    for (var i = 0; i < numRows; i++) {
+      var row = "<div><div class='cell index-cell-row'><div class='number'>" + i + "</div></div>";
+      for (var j = 0; j < numColumns; j++) {
+        row += "<div id='" + i + "_" + j + "' class='cell'>" + (showCellValues && solutionGrid[i][j] != null ? solutionGrid[i][j] : "&nbsp;") + "</div>";
+      }
+      row += "</div>";
+      $('#board').append(row);
+    }
+  }
+
+  function jumpOnCell(id, value) {
+
+    var timeoutId = setTimeout(function () {
+
+      var activeCell = $('.active-knight-cell');
+      activeCell.removeClass('active-knight-cell').addClass('used-cell').html(activeCell.attr('value'));
+
+      var newActiveCell = $(id).addClass('active-knight-cell').attr('value', value).html('&#9822;');
+
+
+    }, showSolutionTimeoutMs);
+    showSolutionTimeoutsList.push(timeoutId);
+  }
+
+  function goToStartScreen() {
+    clearSolutionTimeoutsList();
+    $('#result-screen').hide();
+    $('#info').hide();
+    $('#start-screen').show();
+  }
+
+  function clearSolutionTimeoutsList() {
+    for (var i = 0; i < showSolutionTimeoutsList.length; i++) {
+      clearTimeout(showSolutionTimeoutsList[i]);
+    }
+  }
+</script>
+
+</html>
