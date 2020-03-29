@@ -53,8 +53,8 @@
 
     h2 {
       font-size: 18px;
+      margin: 15px 0;
       text-align: center;
-      margin: 10px 0 20px 0;
     }
 
     .text-center {
@@ -193,31 +193,31 @@
 
     <h2>Options</h2>
     <div class="form-item">
-      <label for="numRows">NUMBER OF ROWS</label>
+      <label for="numRows">Number of rows</label>
       <input type="number" min="1" id="numRows" value="8" />
     </div>
     <div class="form-item">
-      <label for="numColumns">NUMBER OF COLUMNS</label>
+      <label for="numColumns">Number of columns</label>
       <input type="number" min="1" id="numColumns" value="8" />
     </div>
     <div class="form-item">
-      <label for="startRowIndex">START ROW INDEX</label>
+      <label for="startRowIndex">&#9822; Start row index</label>
       <input type="number" min="0" id="startRowIndex" value="0" />
     </div>
     <div class="form-item">
-      <label for="startColumnIndex">START COLUMN INDEX</label>
+      <label for="startColumnIndex">&#9822; Start column index</label>
       <input type="number" min="0" id="startColumnIndex" value="0" />
     </div>
     <div class="form-item">
-      <label for="useWarnsdorfsRule">USE WARNSDORFF'S RULE</label>
+      <label for="useWarnsdorfsRule">Use Warnsdorff's rule</label>
       <input type="checkbox" checked id="useWarnsdorfsRule" />
     </div>
     <div class="form-item">
-      <label for="maxProcessingTimeInMs">MAX PROCESSING TIME (sec)</label>
+      <label for="maxProcessingTimeInMs">Max processing time (sec)</label>
       <input type="number" min="1" id="maxProcessingTimeInSeconds" value="5" />
     </div>
     <div class="form-item">
-      <label for="showSolutionDelay">SOLUTION REPLAY INTERVAL (ms)</label>
+      <label for="showSolutionDelay">Solution replay interval (ms)</label>
       <input type="number" min="0" id="showSolutionDelay" value="100" />
     </div>
 
@@ -283,7 +283,7 @@
       setupVariables();
 
       solve();
-    }, 10);
+    }, 50);
   }
 
   function setupVariables() {
@@ -378,7 +378,7 @@
 
     // Check if we reached the max processing time only every 500k tries as that check actually takes time and slows down the process.
     counterToCheckMaxProcessingTime++;
-    if (counterToCheckMaxProcessingTime === 500000) {
+    if (counterToCheckMaxProcessingTime > 500000) {
       counterToCheckMaxProcessingTime = 0;
       checkMaxProcessingTime();
       if (maxProcessingTimeReached) {
