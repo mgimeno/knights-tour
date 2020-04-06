@@ -2,6 +2,18 @@
 <html>
 
 <head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-162793075-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-162793075-1');
+</script>
+
+
   <meta charset="utf-8">
   <title>Knight's tour</title>
   <meta name="viewport" content="initial-scale=1">
@@ -41,7 +53,7 @@
       padding: 15px 0px;
       text-align: center;
       width: 100%;
-      background-color: #5959a2;
+      background-color: #1f1f6b;
       margin-bottom: 40px;
     }
 
@@ -130,7 +142,7 @@
     }
 
     button {
-      background-color: #5959a2;
+      background-color: #1f1f6b;
       color: #fff;
       padding: 5px 10px;
       border: 1px solid #333;
@@ -187,7 +199,7 @@
     </div>
 
     <p class="description">
-      A knight's tour is a sequence of moves of a knight on a chessboard such that the knight visits every square
+      A knight's tour is a sequence of moves of a knight on a chessboard such that it visits every square
       exactly once.
     </p>
 
@@ -201,19 +213,19 @@
       <input type="number" min="1" id="numColumns" value="8" />
     </div>
     <div class="form-item">
-      <label for="startRowIndex">&#9822; Start row index</label>
-      <input type="number" min="0" id="startRowIndex" value="0" />
+      <label for="startRowIndex">&#9822; Start row</label>
+      <input type="number" min="1" id="startRowIndex" value="1" />
     </div>
     <div class="form-item">
-      <label for="startColumnIndex">&#9822; Start column index</label>
-      <input type="number" min="0" id="startColumnIndex" value="0" />
+      <label for="startColumnIndex">&#9822; Start column</label>
+      <input type="number" min="1" id="startColumnIndex" value="1" />
     </div>
     <div class="form-item">
       <label for="useWarnsdorfsRule">Use Warnsdorff's rule</label>
       <input type="checkbox" checked id="useWarnsdorfsRule" />
     </div>
     <div class="form-item">
-      <label for="maxProcessingTimeInMs">Max processing time (sec)</label>
+      <label for="maxProcessingTimeInSeconds">Max processing time (sec)</label>
       <input type="number" min="1" id="maxProcessingTimeInSeconds" value="5" />
     </div>
     <div class="form-item">
@@ -289,8 +301,8 @@
   function setupVariables() {
     numRows = parseInt($('#numRows')[0].value);
     numColumns = parseInt($('#numColumns')[0].value);
-    startRowIndex = parseInt($('#startRowIndex')[0].value);
-    startColumnIndex = parseInt($('#startColumnIndex')[0].value);
+    startRowIndex = parseInt($('#startRowIndex')[0].value) - 1;
+    startColumnIndex = parseInt($('#startColumnIndex')[0].value) - 1;
     showSolutionDelay = parseInt($('#showSolutionDelay')[0].value);
     useWarnsdorfsRule = $('#useWarnsdorfsRule').prop('checked');
     maxProcessingTimeInMs = (parseInt($('#maxProcessingTimeInSeconds')[0].value) * 1000);
@@ -495,13 +507,13 @@
 
     var topIndexRow = "<div><div class='cell index-cell-col-empty'>&nbsp;</div>";
     for (var t = 0; t < numColumns; t++) {
-      topIndexRow += "<div class='cell index-cell-col'>" + t + "</div>";
+      topIndexRow += "<div class='cell index-cell-col'>" + (t + 1) + "</div>";
     }
     topIndexRow += "</div>";
     $('#board').append(topIndexRow);
 
     for (var i = 0; i < numRows; i++) {
-      var row = "<div><div class='cell index-cell-row'><div class='number'>" + i + "</div></div>";
+      var row = "<div><div class='cell index-cell-row'><div class='number'>" + (i + 1) + "</div></div>";
       for (var j = 0; j < numColumns; j++) {
         row += "<div id='" + i + "_" + j + "' class='cell " + (showCellValues ? "used-cell" : "") + "'>" + (showCellValues && solutionGrid[i][j] != null ? solutionGrid[i][j] : "&nbsp;") + "</div>";
       }
