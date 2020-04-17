@@ -3,7 +3,6 @@
 
 <head>
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163361114-1"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -13,13 +12,22 @@
     gtag('config', 'UA-163361114-1');
   </script>
 
-
   <meta charset="utf-8">
   <title>Knight's tour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Knight's Tour solution using warnsdorff's rule">
 
-  <link id="favicon" rel="shortcut icon" type="image/png"
-    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAAHdElNRQfkAxcQKTMs37tPAAABS0lEQVRIx7WUPUsDQRBAX8QPkGghVqJnEQQlNlERBEGwFPwFtiKkkfsLKqKlYGubzsZfIMRCrAyIhRGRCCKiwcLmOJS1UI5csrM7pzhb7d2+x+zM7oIvdujyrnHGHft/wad5I2aJ3O/wY8zPaFDOupV+1rhKBAbDBSN6fJ5mCv4etwQ6fJBLC24w1Oj148OcC7jBsOHDC9w4cEPVjS/y4sQNHwzJ+DKRBzcYVlqRdG8X6FOUuCQLWvv8SCQIxmVBJYFCRglYZ5tD4jbBpyu9IiEHrCbzgEZHDTJcrjw1SxHLWjzHibULs1pBaMXvtVd7RjgTWzq8h2vhGJV0gk0Bf9JuoC4IKu0L7c/UJBOCuKoTFMTMznSCSBQ86yowQCzUoONN7LYK3tmlaP0zxkP6g70pp47X94g9fwZz5EXBlKaIGeKfBE0H8ZqefgEdi+Zikqxi6QAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wMy0yM1QxNjo0MTo1MSswMDowMN5Y56kAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjAtMDMtMjNUMTY6NDE6NTErMDA6MDCvBV8VAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAABJRU5ErkJggg==">
+  <meta property="og:title" content="Knight's Tour">
+  <meta property="og:description" content="Knight's Tour solution using warnsdorff's rule">
+  <meta property="og:image" content="http://knights-tour.marcosgimeno.com/images/knight.png">
+  <meta property="og:url" content="http://knights-tour.marcosgimeno.com">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_GB">
+
+  <meta property="fb:admins" content="1114899665">
+
+  <link rel="shortcut icon" href="images/knight.png">
+  <link rel="icon" sizes="16x16 32x32 64x64" href="images/knight.png">
 
   <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 
@@ -29,13 +37,29 @@
       font-family: "Open Sans", sans-serif;
     }
 
-    html{
+    html {
       height: 100%;
       background: #fafafa;
     }
 
     body {
       color: #555;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: 25px;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    .text-center {
+      text-align: center;
     }
 
     #start-screen {
@@ -62,22 +86,6 @@
       margin-bottom: 40px;
     }
 
-    h1 {
-      color: #fff;
-      font-size: 25px;
-      margin: 0;
-    }
-
-    h2 {
-      font-size: 18px;
-      margin: 15px 0;
-      text-align: center;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
     #board {
       margin: 50px auto;
       white-space: nowrap;
@@ -102,7 +110,7 @@
       background-color: #5eb95e;
       font-size: 16px;
 
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAAHdElNRQfkAxcQKTMs37tPAAABS0lEQVRIx7WUPUsDQRBAX8QPkGghVqJnEQQlNlERBEGwFPwFtiKkkfsLKqKlYGubzsZfIMRCrAyIhRGRCCKiwcLmOJS1UI5csrM7pzhb7d2+x+zM7oIvdujyrnHGHft/wad5I2aJ3O/wY8zPaFDOupV+1rhKBAbDBSN6fJ5mCv4etwQ6fJBLC24w1Oj148OcC7jBsOHDC9w4cEPVjS/y4sQNHwzJ+DKRBzcYVlqRdG8X6FOUuCQLWvv8SCQIxmVBJYFCRglYZ5tD4jbBpyu9IiEHrCbzgEZHDTJcrjw1SxHLWjzHibULs1pBaMXvtVd7RjgTWzq8h2vhGJV0gk0Bf9JuoC4IKu0L7c/UJBOCuKoTFMTMznSCSBQ86yowQCzUoONN7LYK3tmlaP0zxkP6g70pp47X94g9fwZz5EXBlKaIGeKfBE0H8ZqefgEdi+Zikqxi6QAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMC0wMy0yM1QxNjo0MTo1MSswMDowMN5Y56kAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjAtMDMtMjNUMTY6NDE6NTErMDA6MDCvBV8VAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAABJRU5ErkJggg==);
+      background-image: url(images/knight.png);
       background-repeat: no-repeat;
       background-position: 50% 50%;
       background-size: 30px;
@@ -146,6 +154,13 @@
       font-size: 15px;
     }
 
+    select {
+      padding: 2px;
+      border: none;
+      font-size: 15px;
+      background: white;
+    }
+
     button {
       background-color: #1f1f6b;
       color: #fff;
@@ -185,7 +200,7 @@
     .profile-link {
       text-decoration: none;
       padding-left: 55px;
-      background: url(profile-picture.gif) 0 center no-repeat;
+      background: url(images/profile-picture.gif) 0 center no-repeat;
       font-size: 14px;
       height: 60px;
       background-size: 50px 50px;
@@ -216,13 +231,11 @@
       transform: scaleX(0);
     }
 
-
     .image-description {
       width: 220px;
       height: 220px;
-      background-image: url(knights-tour.gif);
+      background-image: url(images/knights-tour.gif);
     }
-
   </style>
 </head>
 
@@ -262,8 +275,11 @@
         <input type="number" min="1" id="startColumnIndex" value="1" required />
       </div>
       <div class="form-item">
-        <label for="useWarnsdorfsRule">Use Warnsdorff's rule</label>
-        <input type="checkbox" checked id="useWarnsdorfsRule" />
+        <label for="algorithm">Algorithm</label>
+        <select name="algorithm" id="algorithm">
+          <option value="warnsdorfsRule">Warnsdorff's rule</option>
+          <option value="random">Regular backtracking</option>
+        </select>
       </div>
       <div class="form-item">
         <label for="maxProcessingTimeInSeconds">Max processing time (sec)</label>
@@ -275,7 +291,7 @@
       </div>
 
       <div class="form-item text-center">
-        <button type="button" id="solve-button" onclick="onSolveClicked();">SHOW SOLUTION</button>
+        <button type="button" id="solve-button" onclick="onSolveClicked();">FIND SOLUTION</button>
       </div>
     </form>
 
@@ -323,6 +339,7 @@
   var maxProcessingTimeReached;
   var counterToCheckMaxProcessingTime;
   var backwardsMovements;
+
   const knightMoves = [
     { row: -2, column: 1 },
     { row: -1, column: 2 },
@@ -331,39 +348,39 @@
     { row: 2, column: -1 },
     { row: 1, column: -2 },
     { row: -1, column: -2 },
-    { row: -2, column: -1 }];
+    { row: -2, column: -1 }
+  ];
 
-  function onSolveClicked() {
+  onSolveClicked = () => {
 
     let optionsForm = getElementById('options-form');
     if (!optionsForm.checkValidity()) {
       onError("Invalid options");
-    }
-    else {
-      getElementById('solve-button').setAttribute("disabled", true);
-      hideElementById('error');
-
-      let infoElement = getElementById('info');
-      infoElement.innerHTML = "Thinking...";
-      showElementById('info');
-
-      setupVariables();
-      createSolutionArray();
-
-      setTimeout(function () {
-        solve();
-      }, 50);
+      return;
     }
 
-  }
+    getElementById('solve-button').setAttribute("disabled", true);
+    hideElementById('error');
 
-  function setupVariables() {
+    getElementById('info').innerHTML = "Thinking...";
+    showElementById('info');
+
+    resetVariables();
+    createSolutionArray();
+
+    setTimeout(() => {
+      solve();
+    }, 50);
+
+  };
+
+  resetVariables = () => {
     numRows = parseInt(getElementValueById('numRows'));
     numColumns = parseInt(getElementValueById('numColumns'));
     startRowIndex = parseInt(getElementValueById('startRowIndex')) - 1;
     startColumnIndex = parseInt(getElementValueById('startColumnIndex')) - 1;
     showSolutionDelay = parseInt(getElementValueById('showSolutionDelay'));
-    useWarnsdorfsRule = getElementById('useWarnsdorfsRule').checked;
+    useWarnsdorfsRule = (getElementValueById('algorithm') === "warnsdorfsRule");
     maxProcessingTimeInMs = (parseInt(getElementValueById('maxProcessingTimeInSeconds')) * 1000);
 
     pathNumber = 0;
@@ -378,7 +395,7 @@
 
   }
 
-  function createSolutionArray() {
+  createSolutionArray = () => {
     solutionGrid = new Array(numRows);
     for (let i = 0; i < numRows; i++) {
       solutionGrid[i] = new Array(numColumns);
@@ -391,7 +408,7 @@
     }
   }
 
-  function solve() {
+  solve = () => {
 
     startTime = new Date().getTime();
 
@@ -405,12 +422,12 @@
 
     }
     catch (error) {
-      console.log(error);
+      console.error(error);
       onError("Maximum capacity exceeded<br>Please try with a smaller chessboard");
     }
   }
 
-  function showNoSolutionFound() {
+  showNoSolutionFound = () => {
     if (maxProcessingTimeReached) {
       endTime = new Date().getTime();
       let movesPerSecond = Math.floor(totalMovesCount / ((endTime - startTime) / 1000));
@@ -420,22 +437,9 @@
     }
   }
 
-  function onError(htmlText) {
+  getWarnsdorfSortedPossibleMoves = (row, column) => {
+    // Returns the list of possible next moves, sorted by the number of moves that the next cell has got.
 
-    hideElementById('info');
-
-    clearAllTimeoutsList();
-
-    getElementById('solve-button').removeAttribute("disabled");
-
-    getElementById('error').innerHTML = htmlText
-
-    showElementById('error');
-
-  }
-
-  function getWarnsdorfSortedPossibleMoves(row, column) {
-    //Possible next moves sorted by the number of moves that next cell has got. ASC.
     let possibleMoves = [];
 
     for (let gameMoveIndex = 0; gameMoveIndex < knightMoves.length; gameMoveIndex++) {
@@ -451,19 +455,18 @@
       }
     }
 
-    return possibleMoves.sort(function (a, b) {
+    return possibleMoves.sort((a, b) => {
       return a.possibleMovesCount - b.possibleMovesCount;
     });
   }
 
-  function checkMaxProcessingTime() {
+  checkMaxProcessingTime = () => {
     if ((new Date().getTime() - startTime) > maxProcessingTimeInMs) {
       maxProcessingTimeReached = true;
     }
   }
 
-
-  function findPath(row, column, index) {
+  findPath = (row, column, index) => {
 
     // Check if we reached the max processing time only every 500k tries as that check actually takes time and slows down the process.
     counterToCheckMaxProcessingTime++;
@@ -480,6 +483,7 @@
     pathNumber++;
     // mark cell as used
     solutionGrid[row][column] = pathNumber;
+    // store knight's path
     solutionPath[pathNumber] = { row: row, column: column };
 
     if (index === ((numRows * numColumns) - 1)) {
@@ -527,22 +531,19 @@
     return false;
   }
 
-  function canMove(row, col) {
-    if (row >= 0 && col >= 0 && row < numRows && col < numColumns && solutionGrid[row][col] == null) {
-      return true;
-    }
-    return false;
+  canMove = (row, col) => {
+    return ((row >= 0) && (col >= 0) && (row < numRows) && (col < numColumns) && (solutionGrid[row][col] == null));
   }
 
-  function getNextPossibleMovesCount(row, col) {
+  getNextPossibleMovesCount = (row, col) => {
 
     let count = 0;
 
     for (let i = 0; i < knightMoves.length; i++) {
-      let nextMoveRow = row + knightMoves[i].row;
-      let nextMoveCol = col + knightMoves[i].column;
+      let targetRow = row + knightMoves[i].row;
+      let targetCol = col + knightMoves[i].column;
 
-      if (canMove(nextMoveRow, nextMoveCol)) {
+      if (canMove(targetRow, targetCol)) {
         count++;
       }
     }
@@ -550,7 +551,8 @@
     return count;
   }
 
-  function showSolution() {
+  showSolution = () => {
+
     getElementById('result-solve-seconds').innerHTML = ((endTime - startTime) / 1000).toFixed(4);
     getElementById('result-cell-count').innerHTML = numRows + "x" + numColumns + " = " + (numRows * numColumns);
     getElementById('result-moves-count').innerHTML = totalMovesCount.toLocaleString();
@@ -566,35 +568,35 @@
 
     if (showSolutionDelay > 0) {
 
-      printBoard(false);
+      displayBoard(false);
 
       for (let pathIndex = 1; pathIndex < solutionPath.length; pathIndex++) {
         showSolutionTimeoutMs += showSolutionDelay;
 
-        let cellId = solutionPath[pathIndex].row + "_" + solutionPath[pathIndex].column;
-        let cellValue = solutionGrid[solutionPath[pathIndex].row][solutionPath[pathIndex].column];
-        jumpOnCell(cellId, cellValue);
+        let newCellId = solutionPath[pathIndex].row + "_" + solutionPath[pathIndex].column;
+        let newCellPathNumber = solutionGrid[solutionPath[pathIndex].row][solutionPath[pathIndex].column];
+        moveKnight(newCellId, newCellPathNumber);
       }
     }
     else {
-      printBoard(true);
+      displayBoard(true);
     }
   }
 
-  function printBoard(showCellValues) {
+  displayBoard = (showCellValues) => {
 
     let board = getElementById('board');
 
-    let topIndexRow = document.createElement('div');
+    let firstRow = document.createElement('div');
 
-    let topIndexRowContent = "<div class='cell index-cell-col-empty'>&nbsp;</div>";
+    let firstRowContent = "<div class='cell index-cell-col-empty'>&nbsp;</div>";
     for (let topColIndex = 0; topColIndex < numColumns; topColIndex++) {
-      topIndexRowContent += "<div class='cell index-cell-col'>" + (topColIndex + 1) + "</div>";
+      firstRowContent += "<div class='cell index-cell-col'>" + (topColIndex + 1) + "</div>";
     }
 
-    topIndexRow.innerHTML = topIndexRowContent;
+    firstRow.innerHTML = firstRowContent;
 
-    board.appendChild(topIndexRow)
+    board.appendChild(firstRow)
 
     for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
       let row = document.createElement('div');
@@ -610,27 +612,28 @@
     }
   }
 
-  function jumpOnCell(id, value) {
+  moveKnight = (targetCellId, targetPathNumber) => {
 
-    let timeoutId = setTimeout(function () {
+    let timeoutId = setTimeout(() => {
 
       let oldKnightCell = getFirstElementByClass('active-knight-cell');
       if (oldKnightCell) {
         oldKnightCell.classList.remove('active-knight-cell');
         oldKnightCell.classList.add('used-cell');
-        oldKnightCell.innerText = oldKnightCell.getAttribute('value');
+        oldKnightCell.innerText = oldKnightCell.getAttribute('data-path-number');
       }
 
-      let newKnightCell = getElementById(id);
+      let newKnightCell = getElementById(targetCellId);
       newKnightCell.classList.add('active-knight-cell');
-      newKnightCell.setAttribute('value', value);
+      newKnightCell.setAttribute('data-path-number', targetPathNumber);
 
 
     }, showSolutionTimeoutMs);
+
     allTimeoutsList.push(timeoutId);
   }
 
-  function goToStartScreen() {
+  goToStartScreen = () => {
     clearAllTimeoutsList();
 
     hideElementById('result-screen');
@@ -642,23 +645,37 @@
     getElementById('solve-button').removeAttribute("disabled");
   }
 
-  function showElementById(id) {
+  onError = (htmlText) => {
+
+    hideElementById('info');
+
+    clearAllTimeoutsList();
+
+    getElementById('solve-button').removeAttribute("disabled");
+
+    getElementById('error').innerHTML = htmlText
+
+    showElementById('error');
+
+  }
+
+  showElementById = (id) => {
     getElementById(id).style.display = 'block';
   }
 
-  function hideElementById(id) {
+  hideElementById = (id) => {
     getElementById(id).style.display = 'none';
   }
 
-  function getElementById(id) {
+  getElementById = (id) => {
     return document.getElementById(id);
   }
 
-  function getElementValueById(id) {
+  getElementValueById = (id) => {
     return document.getElementById(id).value;
   }
 
-  function getFirstElementByClass(className) {
+  getFirstElementByClass = (className) => {
     let result = document.getElementsByClassName(className);
     if (result.length) {
       return result[0];
@@ -666,11 +683,11 @@
     return null
   }
 
-  function emptyElementById(id) {
+  emptyElementById = (id) => {
     getElementById(id).innerHTML = '';
   }
 
-  function clearAllTimeoutsList() {
+  clearAllTimeoutsList = () => {
     for (let i = 0; i < allTimeoutsList.length; i++) {
       clearTimeout(allTimeoutsList[i]);
     }
