@@ -4,6 +4,8 @@
 
 A knight's tour is a sequence of moves of a knight on a chessboard such that it visits every square exactly once.
 
+This project lets you select how big the chessboard is and tries to find a knight's tour solution in it.
+
 ## Demo URL
 
 [http://knights-tour.marcosgimeno.com](http://knights-tour.marcosgimeno.com)
@@ -24,9 +26,11 @@ Warnsdorff's rule is far more efficient.
 ## Speed and maximum capacity
 
 The calculations run on your own browser (javascript). 
-This means that depending on your browser you might get a Maximum capacity exceeded error when trying to solve a very big chessboard.  (This comes from the javascript error "Maximum call stack size exceeded")
+
+This means that depending on your browser you might get a "Maximum capacity exceeded" error when trying to solve a very big chessboard.  (This comes from the javascript error "Maximum call stack size exceeded")
+
 Obviously, this also means the faster your device, the faster the calculations.
 
 ## Development
 
-This project has been developed in a single file (aside for images) using just Javascript, CSS and HTML with no dependencies.
+This project has been developed in a single file (aside from images) using just plain Javascript, CSS and HTML with no libraries/dependencies.
