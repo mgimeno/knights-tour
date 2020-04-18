@@ -14,10 +14,12 @@ This project lets you select how big the chessboard is and tries to find a knigh
 
 2 different algorithms have been implemented. Both use backtracking. 
 
-1.- Fixed set of moves
+### 1.- Fixed set of moves
+
 The knight always tries to move in the same order. 
 
-2.- Warnsdorff's rule
+### 2.- Warnsdorff's rule
+
 The knight is moved so that it always proceeds to the square from which the knight will have the fewest onward moves. 
 When calculating the number of onward moves for each candidate square, we do not count moves that revisit any square already visited.
 
