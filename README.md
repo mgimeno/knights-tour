@@ -31,7 +31,7 @@ The calculations run on your own browser (javascript).
 
 This means that depending on your browser you might get a "Maximum capacity exceeded" error when trying to solve a very big chessboard.  (This comes from the javascript error "Maximum call stack size exceeded")
 
-Obviously, this also means the faster your device, the faster the calculations.
+Obviously, this also means the faster your device is, the faster the calculations are done.
 
 ## Development
 
