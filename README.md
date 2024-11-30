@@ -8,7 +8,7 @@ This project lets you select how big the chessboard is and tries to find a knigh
 
 ## Demo URL
 
-[http://knights-tour.marcosgimeno.com](http://knights-tour.marcosgimeno.com)
+[https://marcosgimeno.com/knights-tour](https://marcosgimeno.com/knights-tour)
 
 ## Algorithms
 
