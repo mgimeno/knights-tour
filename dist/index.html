@@ -2,700 +2,1370 @@
 <html lang="en">
 
 <head>
-
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-163361114-1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    gtag('config', 'UA-163361114-1');
-  </script>
-
   <meta charset="utf-8">
-  <title>Knight's tour</title>
+  <title>Knight's Tour</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Knight's Tour solution using warnsdorff's rule">
+  <meta name="description" content="Find a Knight's Tour with Warnsdorff's rule or fixed backtracking.">
+  <meta name="theme-color" content="#102a43">
 
   <meta property="og:title" content="Knight's Tour">
-  <meta property="og:description" content="Knight's Tour solution using warnsdorff's rule">
-  <meta property="og:image" content="http://knights-tour.marcosgimeno.com/images/knight.png">
-  <meta property="og:image:width" content="512" />
-  <meta property="og:image:height" content="512" />
-  <meta property="og:url" content="http://knights-tour.marcosgimeno.com">
+  <meta property="og:description" content="Find a Knight's Tour with Warnsdorff's rule or fixed backtracking.">
+  <meta property="og:image" content="https://marcosgimeno.com/knights-tour/images/knight.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:url" content="https://marcosgimeno.com/knights-tour">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_GB">
 
-  <meta property="fb:admins" content="1114899665">
-
-  <link rel="shortcut icon" href="images/knight.png">
-  <link rel="icon" sizes="16x16 32x32 64x64" href="images/knight.png">
-
+  <link rel="icon" type="image/png" href="images/knight.png">
   <link rel="apple-touch-icon" href="images/knight.png">
 
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --surface: #ffffff;
+      --surface-soft: #f7fafc;
+      --ink: #172033;
+      --muted: #5b6b82;
+      --line: #d9e2ec;
+      --brand: #102a43;
+      --brand-soft: #183a59;
+      --accent: #00a676;
+      --accent-soft: #e5f8ee;
+      --danger: #c2413d;
+      --danger-soft: #fff0ef;
+      --warning: #f2b84b;
+      --shadow: 0 18px 45px rgba(16, 42, 67, 0.12);
+      --radius: 8px;
+      --cell-size: 38px;
+    }
 
-
-  <style type="text/css">
     * {
-      font-family: "Open Sans", sans-serif;
+      box-sizing: border-box;
     }
 
     html {
-      height: 100%;
-      background: #fafafa;
+      min-height: 100%;
+      background: var(--bg);
     }
 
     body {
-      color: #555;
-    }
-
-    h1 {
-      color: #fff;
-      font-size: 25px;
+      min-height: 100%;
       margin: 0;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      background: linear-gradient(180deg, #f8fafc 0%, var(--bg) 100%);
     }
 
-    h2 {
-      font-size: 18px;
-      margin: 15px 0;
-      text-align: center;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    #start-screen {
-      padding: 15px;
-      border: 1px solid #ddd;
-    }
-
-    #result-screen {
-      display: none;
-      text-align: center;
-    }
-
-    #start-screen,
-    #result-details {
-      max-width: 500px;
-      margin: 20px auto 0 auto;
-    }
-
-    .title-container {
-      padding: 15px 0px;
-      text-align: center;
-      width: 100%;
-      background-color: #1f1f6b;
-      margin-bottom: 40px;
-    }
-
-    #board {
-      margin: 50px auto;
-      white-space: nowrap;
-    }
-
-    .cell {
-      border: 1px solid #666;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      display: inline-block;
-      font-size: 16px;
-      box-sizing: border-box;
-      width: 40px;
-      height: 40px;
-      line-height: 40px;
-    }
-
-    .active-knight-cell {
-      color: #333;
-      font-size: 30px;
-      background-color: #5eb95e;
-      font-size: 16px;
-
-      background-image: url(images/knight.png);
-      background-repeat: no-repeat;
-      background-position: 50% 50%;
-      background-size: 30px;
-    }
-
-    .used-cell {
-      color: #fff;
-      background-color: #888;
-    }
-
-    .index-cell-row {
-      text-align: right;
-      border-color: white;
-    }
-
-    .index-cell-row .number {
-      margin-right: 10px;
-    }
-
-    .index-cell-col {
-      text-align: center;
-      border-color: white;
-    }
-
-    .index-cell-col-empty {
-      border-color: white;
-    }
-
-    .form-item {
-      padding: 6px 0;
-    }
-
-    .form-item label {
-      font-weight: bold;
-    }
-
-    input[type=number] {
-      width: 50px;
-      padding: 2px;
-      border: none;
-      font-size: 15px;
-    }
-
+    button,
+    input,
     select {
-      padding: 2px;
-      border: none;
-      font-size: 15px;
-      background: white;
+      font: inherit;
     }
 
     button {
-      background-color: #1f1f6b;
-      color: #fff;
-      padding: 10px 15px;
-      border: 1px solid #333;
+      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: var(--brand);
+      color: #ffffff;
+      font-weight: 800;
+      letter-spacing: 0;
+      padding: 0 18px;
+      transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
     }
 
-    button:hover {
-      background-color: #fff;
-      color: #333;
+    button:hover:not(:disabled) {
+      background: var(--accent);
+      color: var(--brand);
       cursor: pointer;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0, 166, 118, 0.2);
     }
 
-    #solve-button {
-      margin-top: 10px;
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(0, 166, 118, 0.32);
+      outline-offset: 2px;
     }
 
-    #info {
-      color: rgb(16, 16, 150);
-      font-weight: bold;
-      margin-top: 10px;
+    button:disabled {
+      cursor: wait;
+      opacity: 0.62;
     }
 
-    #error {
-      color: rgb(175, 29, 29);
-      font-weight: bold;
-      margin-top: 10px;
+    [hidden] {
+      display: none !important;
+    }
+
+    .app-header {
+      background: var(--brand);
+      color: #ffffff;
+      border-bottom: 4px solid var(--accent);
+    }
+
+    .app-header__inner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0;
+    }
+
+    .brand-mark {
+      width: 58px;
+      height: 58px;
+      padding: 8px;
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .eyebrow {
+      margin: 0 0 2px;
+      color: #b7f4d7;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      color: #ffffff;
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1;
+    }
+
+    h2 {
+      margin-bottom: 18px;
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .app-shell {
+      width: min(1100px, calc(100% - 32px));
+      margin: 30px auto 0;
+    }
+
+    .screen {
+      animation: screen-in 220ms ease both;
+    }
+
+    @keyframes screen-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .start-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .intro-panel,
+    .options-panel,
+    .result-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .intro-panel {
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 18px;
+      padding: 28px;
+      text-align: center;
+    }
+
+    .tour-preview {
+      width: min(220px, 100%);
+      height: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+
+    .description {
+      max-width: 32rem;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .options-panel {
+      padding: 24px;
+    }
+
+    fieldset {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    legend {
+      display: block;
+      margin-bottom: 18px;
+      padding: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .form-item {
+      display: grid;
+      gap: 7px;
+    }
+
+    .form-item--wide {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: var(--brand);
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 8px 10px;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    }
+
+    input:hover,
+    select:hover {
+      border-color: #9fb3c8;
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--brand) 50%),
+        linear-gradient(135deg, var(--brand) 50%, transparent 50%);
+      background-position:
+        calc(100% - 22px) 50%,
+        calc(100% - 16px) 50%;
+      background-repeat: no-repeat;
+      background-size: 6px 6px;
+      cursor: pointer;
+      padding-right: 44px;
+    }
+
+    input:invalid {
+      border-color: rgba(194, 65, 61, 0.72);
+      background: var(--danger-soft);
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .button-secondary {
+      background: #ffffff;
+      border-color: var(--line);
+      color: var(--brand);
+    }
+
+    .button-secondary:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--brand);
+      box-shadow: none;
+    }
+
+    .notice {
+      margin-top: 16px;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-weight: 750;
+      white-space: pre-line;
+    }
+
+    .notice--info {
+      border: 1px solid rgba(0, 166, 118, 0.25);
+      background: var(--accent-soft);
+      color: #07543f;
+    }
+
+    .notice--error {
+      border: 1px solid rgba(194, 65, 61, 0.25);
+      background: var(--danger-soft);
+      color: #8f2522;
+    }
+
+    .result-panel {
+      overflow: hidden;
+    }
+
+    .result-toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .result-title {
+      margin: 0 0 10px;
+      color: var(--brand);
+      font-size: 1.1rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(95px, 1fr));
+      gap: 10px;
+    }
+
+    .summary-item {
+      min-width: 0;
+      border-left: 3px solid var(--accent);
+      padding-left: 9px;
+    }
+
+    .summary-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .summary-item strong {
+      display: block;
+      overflow-wrap: anywhere;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .board-shell {
+      overflow: auto;
+      padding: 18px;
+      background:
+        linear-gradient(90deg, rgba(16, 42, 67, 0.06) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(16, 42, 67, 0.06) 1px, transparent 1px),
+        #f4f7fb;
+      background-size: 28px 28px;
+    }
+
+    #board {
+      display: grid;
+      width: max-content;
+      margin: 0 auto;
+      border: 1px solid #90a4b8;
+      border-radius: 6px;
+      background: #90a4b8;
+      box-shadow: 0 14px 34px rgba(16, 42, 67, 0.16);
+    }
+
+    .cell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: var(--cell-size);
+      height: var(--cell-size);
+      border: 0;
+      border-right: 1px solid rgba(16, 42, 67, 0.12);
+      border-bottom: 1px solid rgba(16, 42, 67, 0.12);
+      overflow: hidden;
+      color: #23384d;
+      background: #f9fbfd;
+      font-size: clamp(0.48rem, calc(var(--cell-size) * 0.25), 0.76rem);
+      font-weight: 800;
+      line-height: 1;
+      text-align: center;
+      transition: background-color 120ms ease, color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+      user-select: none;
+    }
+
+    .cell--dark {
+      background: #dbe9e1;
+    }
+
+    .cell--label {
+      color: #ffffff;
+      background: var(--brand-soft);
+      font-size: 0.72rem;
+    }
+
+    .cell--corner {
+      background:
+        linear-gradient(135deg, var(--brand-soft) 0 48%, var(--accent) 49% 52%, var(--brand-soft) 53% 100%);
+    }
+
+    .cell--used {
+      color: #ffffff;
+      background: #446272;
+    }
+
+    .cell--used.cell--dark {
+      background: #395766;
+    }
+
+    .cell--active {
+      z-index: 1;
+      color: transparent;
+      background-color: var(--warning);
+      background-image: url("images/knight.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 72%;
+      box-shadow: inset 0 0 0 2px rgba(16, 42, 67, 0.22), 0 4px 12px rgba(16, 42, 67, 0.22);
+      transform: scale(1.05);
     }
 
     .profile-link-container {
-      margin: 50px 0 20px 0;
-      justify-content: center;
       display: flex;
-      line-height: 60px;
+      justify-content: center;
+      width: min(1100px, calc(100% - 32px));
+      margin: 28px auto 24px;
     }
 
     .profile-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 56px;
+      color: var(--brand);
+      font-size: 0.92rem;
+      font-weight: 650;
       text-decoration: none;
-      padding-left: 55px;
-      background: url(images/profile-picture.gif) 0 center no-repeat;
-      font-size: 14px;
-      height: 60px;
-      background-size: 50px 50px;
-      color: #1f1f6b;
     }
 
-    .profile-link:hover .heart {
-      color: #c44736;
+    .profile-link img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 8px 20px rgba(16, 42, 67, 0.15);
     }
 
-    .profile-link:hover .underline {
-      -webkit-transform: scaleX(1);
+    .profile-link__text {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profile-link__text::after {
+      position: absolute;
+      right: 0;
+      bottom: -3px;
+      left: 0;
+      height: 2px;
+      background: var(--accent);
+      content: "";
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 180ms ease;
+    }
+
+    .profile-link:hover .profile-link__text::after {
       transform: scaleX(1);
     }
 
-    .underline {
-      display: block;
-      position: relative;
-      padding: 0;
-      width: 100%;
-      height: 2px;
-      bottom: 30%;
-      right: 0;
-      background-color: #1f1f6b;
-      -webkit-transition: all 0.25s ease-in-out 0s;
-      transition: all 0.25s ease-in-out 0s;
-      -webkit-transform: scaleX(0);
-      transform: scaleX(0);
+    .heart {
+      color: var(--danger);
+      transition: transform 160ms ease;
     }
 
-    .image-description {
-      width: 220px;
-      height: 220px;
-      background-image: url(images/knights-tour.gif);
+    .profile-link:hover .heart {
+      transform: scale(1.12);
+    }
+
+    @media (max-width: 820px) {
+      .start-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .result-toolbar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      :root {
+        --cell-size: 32px;
+      }
+
+      .app-header__inner,
+      .app-shell,
+      .profile-link-container {
+        width: min(100% - 20px, 1100px);
+      }
+
+      .app-header__inner {
+        gap: 12px;
+        padding: 16px 0;
+      }
+
+      .brand-mark {
+        width: 48px;
+        height: 48px;
+      }
+
+      .intro-panel,
+      .options-panel {
+        padding: 18px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .board-shell {
+        padding: 12px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
     }
   </style>
 </head>
 
 <body>
-
-  <div id="start-screen">
-
-    <div class="title-container">
-      <h1>Knight's Tour</h1>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <img class="brand-mark" src="images/knight.png" alt="" width="58" height="58" fetchpriority="high">
+      <div>
+        <p class="eyebrow">Backtracking visualizer</p>
+        <h1>Knight's Tour</h1>
+      </div>
     </div>
+  </header>
 
-    <div class="text-center">
-      <img class="image-description" />
-    </div>
-
-    <p class="description">
-      A knight's tour is a sequence of moves of a knight on a chessboard such that it visits every square
-      exactly once.
-    </p>
-
-    <h2>Options</h2>
-    <form id="options-form">
-      <div class="form-item">
-        <label for="numRows">Chessboard rows</label>
-        <input type="number" min="1" id="numRows" value="8" required />
-      </div>
-      <div class="form-item">
-        <label for="numColumns">Chessboard columns</label>
-        <input type="number" min="1" id="numColumns" value="8" required />
-      </div>
-      <div class="form-item">
-        <label for="startRowIndex">&#9822; Start row</label>
-        <input type="number" min="1" id="startRowIndex" value="1" required />
-      </div>
-      <div class="form-item">
-        <label for="startColumnIndex">&#9822; Start column</label>
-        <input type="number" min="1" id="startColumnIndex" value="1" required />
-      </div>
-      <div class="form-item">
-        <label for="algorithm">Algorithm</label>
-        <select name="algorithm" id="algorithm">
-          <option value="warnsdorfsRule">Warnsdorff's rule</option>
-          <option value="random">Regular backtracking</option>
-        </select>
-      </div>
-      <div class="form-item">
-        <label for="maxProcessingTimeInSeconds">Max processing time (sec)</label>
-        <input type="number" min="1" id="maxProcessingTimeInSeconds" value="5" required />
-      </div>
-      <div class="form-item">
-        <label for="showSolutionDelay">Solution replay interval (ms)</label>
-        <input type="number" min="0" id="showSolutionDelay" value="100" required />
+  <main class="app-shell">
+    <section id="start-screen" class="screen start-layout" aria-labelledby="options-heading">
+      <div class="intro-panel">
+        <img class="tour-preview" src="images/knights-tour.gif" alt="Animated knight moving across a board" width="220" height="220" decoding="async">
+        <p class="description">
+          A knight's tour visits every square on a chessboard exactly once.
+        </p>
       </div>
 
-      <div class="form-item text-center">
-        <button type="button" id="solve-button" onclick="onSolveClicked();">FIND SOLUTION</button>
+      <form id="options-form" class="options-panel">
+        <fieldset>
+          <legend id="options-heading">Options</legend>
+
+          <div class="form-grid">
+            <div class="form-item">
+              <label for="numRows">Rows</label>
+              <input type="number" min="1" max="100" step="1" inputmode="numeric" id="numRows" value="8" required>
+            </div>
+
+            <div class="form-item">
+              <label for="numColumns">Columns</label>
+              <input type="number" min="1" max="100" step="1" inputmode="numeric" id="numColumns" value="8" required>
+            </div>
+
+            <div class="form-item">
+              <label for="startRowIndex">Start row</label>
+              <input type="number" min="1" max="8" step="1" inputmode="numeric" id="startRowIndex" value="1" required>
+            </div>
+
+            <div class="form-item">
+              <label for="startColumnIndex">Start column</label>
+              <input type="number" min="1" max="8" step="1" inputmode="numeric" id="startColumnIndex" value="1" required>
+            </div>
+
+            <div class="form-item form-item--wide">
+              <label for="algorithm">Algorithm</label>
+              <select name="algorithm" id="algorithm">
+                <option value="warnsdorfsRule">Warnsdorff's rule</option>
+                <option value="fixedBacktracking">Fixed backtracking</option>
+              </select>
+            </div>
+
+            <div class="form-item">
+              <label for="maxProcessingTimeInSeconds">Max thinking time (seconds)</label>
+              <input type="number" min="1" max="120" step="1" inputmode="numeric" id="maxProcessingTimeInSeconds" value="5" required>
+            </div>
+
+            <div class="form-item">
+              <label for="showSolutionDelay">Delay between moves (ms)</label>
+              <input type="number" min="0" max="5000" step="1" inputmode="numeric" id="showSolutionDelay" value="100" required>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="solve-button">Find solution</button>
+            <button type="button" id="cancel-button" class="button-secondary" hidden>Cancel</button>
+          </div>
+        </fieldset>
+
+        <div id="info" class="notice notice--info" role="status" aria-live="polite" hidden></div>
+        <div id="error" class="notice notice--error" role="alert" hidden></div>
+      </form>
+    </section>
+
+    <section id="result-screen" class="screen result-panel" aria-labelledby="result-heading" hidden>
+      <div class="result-toolbar">
+        <div>
+          <h2 id="result-heading" class="result-title">Solution found</h2>
+          <div class="summary-grid" aria-live="polite">
+            <div class="summary-item">
+              <span>Solve time</span>
+              <strong id="result-solve-seconds"></strong>
+            </div>
+            <div class="summary-item">
+              <span>Board</span>
+              <strong id="result-cell-count"></strong>
+            </div>
+            <div class="summary-item">
+              <span>Moves tried</span>
+              <strong id="result-moves-count"></strong>
+            </div>
+            <div class="summary-item">
+              <span>Backtracks</span>
+              <strong id="result-backwards-moves"></strong>
+            </div>
+            <div class="summary-item">
+              <span>Speed</span>
+              <strong><span id="result-moves-per-second"></span>/sec</strong>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="back-button">Back to options</button>
       </div>
-    </form>
 
-    <div id="info"></div>
-    <div id="error"></div>
-  </div>
+      <div class="board-shell">
+        <div id="board" role="grid" aria-label="Knight tour board"></div>
+      </div>
+    </section>
+  </main>
 
-  <div id="result-screen">
-    <div id="result-details">
-      <div>Solution found in <b id="result-solve-seconds"></b> seconds</div>
-      <div>Board: <b id="result-cell-count"></b> squares</div>
-      <div>It took <b id="result-moves-count"></b> moves to solve it</div>
-      <div><b id="result-backwards-moves"></b> backwards moves</div>
-      <div>Speed: <span id="result-moves-per-second"></span> moves per second</div>
+  <footer class="profile-link-container">
+    <a class="profile-link" href="https://www.marcosgimeno.com" target="_blank" rel="noopener noreferrer">
+      <img src="images/profile-picture.gif" alt="" width="50" height="50" loading="lazy" decoding="async">
+      <span class="profile-link__text">by <strong>Marcos Gimeno</strong> with <span class="heart">&hearts;</span></span>
+    </a>
+  </footer>
 
-      <br>
-      <button onclick="goToStartScreen();">BACK TO OPTIONS</button>
-    </div>
-    <div id="board"></div>
-  </div>
+  <script>
+    "use strict";
 
-  <div class="profile-link-container">
-    <a class="profile-link" href="https://www.marcosgimeno.com" target="_blank"> by <b>Marcos Gimeno</b>
-      with <span class="heart">❤</span><span class="underline"></span></a>
-  </div>
-
-</body>
-
-<script>
-  var numRows;
-  var numColumns;
-  var startRowIndex;
-  var startColumnIndex;
-  var solutionGrid;
-  var solutionPath;
-  var pathNumber;
-  var showSolutionTimeoutMs;
-  var showSolutionDelay;
-  var allTimeoutsList = [];
-  var useWarnsdorfsRule;
-  var totalMovesCount;
-  var startTime;
-  var endTime;
-  var maxProcessingTimeInMs;
-  var maxProcessingTimeReached;
-  var counterToCheckMaxProcessingTime;
-  var backwardsMovements;
-
-  const knightMoves = [
-    { row: -2, column: 1 },
-    { row: -1, column: 2 },
-    { row: 1, column: 2 },
-    { row: 2, column: 1 },
-    { row: 2, column: -1 },
-    { row: 1, column: -2 },
-    { row: -1, column: -2 },
-    { row: -2, column: -1 }
-  ];
-
-  onSolveClicked = () => {
-
-    let optionsForm = getElementById('options-form');
-    if (!optionsForm.checkValidity()) {
-      onError("Invalid options");
-      return;
-    }
-
-    getElementById('solve-button').setAttribute("disabled", true);
-    hideElementById('error');
-
-    getElementById('info').innerHTML = "Thinking...";
-    showElementById('info');
-
-    resetVariables();
-    createSolutionArray();
-
-    setTimeout(() => {
-      solve();
-    }, 50);
-
-  };
-
-  resetVariables = () => {
-    numRows = parseInt(getElementValueById('numRows'));
-    numColumns = parseInt(getElementValueById('numColumns'));
-    startRowIndex = parseInt(getElementValueById('startRowIndex')) - 1;
-    startColumnIndex = parseInt(getElementValueById('startColumnIndex')) - 1;
-    showSolutionDelay = parseInt(getElementValueById('showSolutionDelay'));
-    useWarnsdorfsRule = (getElementValueById('algorithm') === "warnsdorfsRule");
-    maxProcessingTimeInMs = (parseInt(getElementValueById('maxProcessingTimeInSeconds')) * 1000);
-
-    pathNumber = 0;
-    solutionGrid = [];
-    solutionPath = [];
-    showSolutionTimeoutMs = 0;
-    allTimeoutsList = [];
-    totalMovesCount = 0;
-    counterToCheckMaxProcessingTime = 0;
-    backwardsMovements = 0;
-    maxProcessingTimeReached = false;
-
-  }
-
-  createSolutionArray = () => {
-    solutionGrid = new Array(numRows);
-    for (let i = 0; i < numRows; i++) {
-      solutionGrid[i] = new Array(numColumns);
-    }
-
-    for (let i = 0; i < numRows; i++) {
-      for (let j = 0; j < numColumns; j++) {
-        solutionGrid[i][j] = null;
-      }
-    }
-  }
-
-  solve = () => {
-
-    startTime = new Date().getTime();
-
-    try {
-
-      if (findPath(startRowIndex, startColumnIndex, 0)) {
-        showSolution();
-      } else {
-        showNoSolutionFound();
-      }
-
-    }
-    catch (error) {
-      console.error(error);
-      onError("Maximum capacity exceeded<br>Please try with a smaller chessboard");
-    }
-  }
-
-  showNoSolutionFound = () => {
-    if (maxProcessingTimeReached) {
-      endTime = new Date().getTime();
-      let movesPerSecond = Math.floor(totalMovesCount / ((endTime - startTime) / 1000));
-      onError(`Max processing time reached<br>Could not find a solution<br>${totalMovesCount.toLocaleString()} moves tried <small>(${movesPerSecond.toLocaleString()} moves per second)</small>`);
-    } else {
-      onError("There is no solution for this scenario");
-    }
-  }
-
-  getWarnsdorfSortedPossibleMoves = (row, column) => {
-    // Returns the list of possible next moves, sorted by the number of moves that the next cell has got.
-
-    let possibleMoves = [];
-
-    for (let gameMoveIndex = 0; gameMoveIndex < knightMoves.length; gameMoveIndex++) {
-      let nextMoveRow = row + knightMoves[gameMoveIndex].row;
-      let nextMoveCol = column + knightMoves[gameMoveIndex].column;
-
-      if (canMove(nextMoveRow, nextMoveCol)) {
-        let move = {
-          possibleMovesCount: (getNextPossibleMovesCount(nextMoveRow, nextMoveCol) - 1), // -1 not to count the current cell.
-          gameMoveIndex: gameMoveIndex
-        };
-        possibleMoves.push(move);
-      }
-    }
-
-    return possibleMoves.sort((a, b) => {
-      return a.possibleMovesCount - b.possibleMovesCount;
+    const APP_LIMITS = Object.freeze({
+      maxDimension: 100,
+      maxCells: 10000,
+      maxSeconds: 120,
+      maxReplayDelay: 5000
     });
-  }
 
-  checkMaxProcessingTime = () => {
-    if ((new Date().getTime() - startTime) > maxProcessingTimeInMs) {
-      maxProcessingTimeReached = true;
+    const KNIGHT_DELTAS = Object.freeze([
+      [-2, 1],
+      [-1, 2],
+      [1, 2],
+      [2, 1],
+      [2, -1],
+      [1, -2],
+      [-1, -2],
+      [-2, -1]
+    ]);
+
+    const elements = {};
+    let activeWorker = null;
+    let activeRunId = 0;
+    let replayTimerId = 0;
+    let replayState = null;
+    let thinkingStartedAt = 0;
+    let thinkingTimerId = 0;
+    let activeCellElement = null;
+
+    document.addEventListener("DOMContentLoaded", init);
+
+    function init() {
+      cacheElements();
+      bindEvents();
+      syncInputBounds();
     }
-  }
 
-  findPath = (row, column, index) => {
+    function cacheElements() {
+      [
+        "algorithm",
+        "back-button",
+        "board",
+        "cancel-button",
+        "error",
+        "info",
+        "maxProcessingTimeInSeconds",
+        "numColumns",
+        "numRows",
+        "options-form",
+        "result-backwards-moves",
+        "result-cell-count",
+        "result-moves-count",
+        "result-moves-per-second",
+        "result-screen",
+        "result-solve-seconds",
+        "showSolutionDelay",
+        "solve-button",
+        "startColumnIndex",
+        "startRowIndex",
+        "start-screen"
+      ].forEach((id) => {
+        elements[toCamelCase(id)] = document.getElementById(id);
+      });
+    }
 
-    // Check if we reached the max processing time only every 500k tries as that check actually takes time and slows down the process.
-    counterToCheckMaxProcessingTime++;
-    if (counterToCheckMaxProcessingTime > 500000) {
-      counterToCheckMaxProcessingTime = 0;
-      checkMaxProcessingTime();
-      if (maxProcessingTimeReached) {
-        return false;
+    function bindEvents() {
+      elements.optionsForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        startSolve();
+      });
+
+      elements.cancelButton.addEventListener("click", cancelSolve);
+      elements.backButton.addEventListener("click", showStartScreen);
+      elements.numRows.addEventListener("input", syncInputBounds);
+      elements.numColumns.addEventListener("input", syncInputBounds);
+    }
+
+    function startSolve() {
+      stopReplay();
+      stopWorker();
+      hideNotice(elements.error);
+
+      const options = readOptions();
+      if (!options) {
+        return;
       }
-    }
 
-    totalMovesCount++;
+      activeRunId += 1;
+      const runId = activeRunId;
 
-    pathNumber++;
-    // mark cell as used
-    solutionGrid[row][column] = pathNumber;
-    // store knight's path
-    solutionPath[pathNumber] = { row: row, column: column };
+      setSolvingState(true);
+      startThinkingTimer();
 
-    if (index === ((numRows * numColumns) - 1)) {
-      //Solution found
-      endTime = new Date().getTime();
-      return true;
-    }
+      if (canUseWorker()) {
+        try {
+          activeWorker = createSolverWorker();
+          activeWorker.onmessage = (event) => {
+            if (runId !== activeRunId) {
+              return;
+            }
 
+            stopWorker();
+            setSolvingState(false);
+            handleSolverResult(event.data, options);
+          };
+          activeWorker.onerror = () => {
+            if (runId !== activeRunId) {
+              return;
+            }
 
-    if (useWarnsdorfsRule) {
-      let sortedPossibleMoves = getWarnsdorfSortedPossibleMoves(row, column);
+            stopWorker();
+            setSolvingState(false);
+            showError("Solver failed. Try a smaller board.");
+          };
+          activeWorker.postMessage(options);
+          return;
+        } catch (error) {
+          console.warn("Worker unavailable. Falling back to main thread.", error);
+          stopWorker();
+        }
+      }
 
-      // Recursively find a path
-      for (let j = 0; j < sortedPossibleMoves.length; j++) {
-
-        if (findPath(row + knightMoves[sortedPossibleMoves[j].gameMoveIndex].row, column + knightMoves[sortedPossibleMoves[j].gameMoveIndex].column, index + 1)) {
-          return true;
+      window.setTimeout(() => {
+        if (runId !== activeRunId) {
+          return;
         }
 
-        if (maxProcessingTimeReached) {
-          break;
+        try {
+          const result = solveTour(options);
+          setSolvingState(false);
+          handleSolverResult(result, options);
+        } catch (error) {
+          console.error(error);
+          setSolvingState(false);
+          showError("Solver failed. Try a smaller board.");
+        }
+      }, 30);
+    }
+
+    function cancelSolve() {
+      activeRunId += 1;
+      stopWorker();
+      stopReplay();
+      setSolvingState(false);
+      showError("Solve cancelled.");
+    }
+
+    function readOptions() {
+      if (!elements.optionsForm.reportValidity()) {
+        showError("Invalid options.");
+        return null;
+      }
+
+      const rows = readInteger(elements.numRows);
+      const columns = readInteger(elements.numColumns);
+      const startRow = readInteger(elements.startRowIndex);
+      const startColumn = readInteger(elements.startColumnIndex);
+      const seconds = readInteger(elements.maxProcessingTimeInSeconds);
+      const replayDelayMs = readInteger(elements.showSolutionDelay);
+      const cellCount = rows * columns;
+
+      if (!Number.isInteger(rows) || rows < 1 || rows > APP_LIMITS.maxDimension) {
+        showError("Rows must be between 1 and " + APP_LIMITS.maxDimension + ".");
+        return null;
+      }
+
+      if (!Number.isInteger(columns) || columns < 1 || columns > APP_LIMITS.maxDimension) {
+        showError("Columns must be between 1 and " + APP_LIMITS.maxDimension + ".");
+        return null;
+      }
+
+      if (cellCount > APP_LIMITS.maxCells) {
+        showError("Board is too large. Max is " + APP_LIMITS.maxCells.toLocaleString() + " squares.");
+        return null;
+      }
+
+      if (!Number.isInteger(startRow) || startRow < 1 || startRow > rows) {
+        showError("Start row must be inside the board.");
+        return null;
+      }
+
+      if (!Number.isInteger(startColumn) || startColumn < 1 || startColumn > columns) {
+        showError("Start column must be inside the board.");
+        return null;
+      }
+
+      if (!Number.isInteger(seconds) || seconds < 1 || seconds > APP_LIMITS.maxSeconds) {
+        showError("Max thinking time must be between 1 and " + APP_LIMITS.maxSeconds + " seconds.");
+        return null;
+      }
+
+      if (!Number.isInteger(replayDelayMs) || replayDelayMs < 0 || replayDelayMs > APP_LIMITS.maxReplayDelay) {
+        showError("Delay between moves must be between 0 and " + APP_LIMITS.maxReplayDelay + " ms.");
+        return null;
+      }
+
+      return {
+        algorithm: elements.algorithm.value,
+        columns,
+        maxProcessingTimeMs: seconds * 1000,
+        replayDelayMs,
+        rows,
+        startColumn: startColumn - 1,
+        startRow: startRow - 1
+      };
+    }
+
+    function handleSolverResult(result, options) {
+      hideNotice(elements.info);
+
+      if (result.status === "solved") {
+        showResult(result, options);
+        return;
+      }
+
+      if (result.status === "timeout") {
+        const speed = getMovesPerSecond(result.totalMoves, result.durationMs);
+        showError(
+          "Max thinking time reached.\nCould not find a solution.\n" +
+          result.totalMoves.toLocaleString() + " moves tried (" + speed.toLocaleString() + "/sec)."
+        );
+        return;
+      }
+
+      if (result.status === "noSolution") {
+        showError("No solution found for this setup.");
+        return;
+      }
+
+      showError(result.message || "Solver failed. Try a smaller board.");
+    }
+
+    function showResult(result, options) {
+      const cellCount = result.rows * result.columns;
+
+      elements.resultSolveSeconds.textContent = formatSeconds(result.durationMs);
+      elements.resultCellCount.textContent = result.rows + "x" + result.columns + " = " + cellCount.toLocaleString();
+      elements.resultMovesCount.textContent = result.totalMoves.toLocaleString();
+      elements.resultBackwardsMoves.textContent = result.backtracks.toLocaleString();
+      elements.resultMovesPerSecond.textContent = getMovesPerSecond(result.totalMoves, result.durationMs).toLocaleString();
+
+      elements.startScreen.hidden = true;
+      elements.resultScreen.hidden = false;
+
+      if (options.replayDelayMs > 0) {
+        renderBoard(result, false);
+        startReplay(result, options.replayDelayMs);
+      } else {
+        renderBoard(result, true);
+      }
+    }
+
+    function renderBoard(result, showCellValues) {
+      const rows = result.rows;
+      const columns = result.columns;
+      const markup = [];
+
+      elements.board.style.gridTemplateColumns = "repeat(" + (columns + 1) + ", var(--cell-size))";
+      elements.board.setAttribute("aria-label", "Knight tour board, " + rows + " rows by " + columns + " columns");
+      elements.board.setAttribute("aria-rowcount", String(rows));
+      elements.board.setAttribute("aria-colcount", String(columns));
+
+      markup.push('<div class="cell cell--label cell--corner" aria-hidden="true"></div>');
+
+      for (let column = 0; column < columns; column += 1) {
+        markup.push('<div class="cell cell--label" aria-hidden="true">' + (column + 1) + "</div>");
+      }
+
+      for (let row = 0; row < rows; row += 1) {
+        markup.push('<div class="cell cell--label" aria-hidden="true">' + (row + 1) + "</div>");
+
+        for (let column = 0; column < columns; column += 1) {
+          const cellId = getCellId(row, column, columns);
+          const step = result.grid[cellId];
+          const darkClass = (row + column) % 2 === 0 ? "" : " cell--dark";
+          const usedClass = showCellValues ? " cell--used" : "";
+          const label = "Row " + (row + 1) + ", column " + (column + 1) + (showCellValues ? ", move " + step : "");
+          const value = showCellValues ? String(step) : "";
+
+          markup.push(
+            '<div id="cell-' + cellId + '" class="cell' + darkClass + usedClass +
+            '" role="gridcell" aria-label="' + label + '">' + value + "</div>"
+          );
+        }
+      }
+
+      elements.board.innerHTML = markup.join("");
+    }
+
+    function startReplay(result, replayDelayMs) {
+      replayState = {
+        index: 0,
+        replayDelayMs,
+        result
+      };
+
+      showReplayStep();
+    }
+
+    function showReplayStep() {
+      if (!replayState) {
+        return;
+      }
+
+      const cellId = replayState.result.path[replayState.index];
+      setActiveCell(cellId, replayState.index + 1);
+      replayState.index += 1;
+
+      if (replayState.index < replayState.result.path.length) {
+        replayTimerId = window.setTimeout(showReplayStep, replayState.replayDelayMs);
+      }
+    }
+
+    function setActiveCell(cellId, step) {
+      if (activeCellElement) {
+        activeCellElement.classList.remove("cell--active");
+        activeCellElement.classList.add("cell--used");
+        activeCellElement.textContent = activeCellElement.dataset.step;
+      }
+
+      const nextCell = document.getElementById("cell-" + cellId);
+      if (!nextCell) {
+        return;
+      }
+
+      nextCell.dataset.step = String(step);
+      nextCell.textContent = "";
+      nextCell.classList.add("cell--active");
+      nextCell.setAttribute("aria-label", nextCell.getAttribute("aria-label") + ", move " + step + ", current knight position");
+      activeCellElement = nextCell;
+    }
+
+    function showStartScreen() {
+      activeRunId += 1;
+      stopWorker();
+      stopReplay();
+      setSolvingState(false);
+      hideNotice(elements.info);
+      hideNotice(elements.error);
+      elements.resultScreen.hidden = true;
+      elements.startScreen.hidden = false;
+      elements.board.innerHTML = "";
+    }
+
+    function stopReplay() {
+      if (replayTimerId) {
+        window.clearTimeout(replayTimerId);
+      }
+
+      replayTimerId = 0;
+      replayState = null;
+      activeCellElement = null;
+    }
+
+    function setSolvingState(isSolving) {
+      elements.solveButton.disabled = isSolving;
+      elements.cancelButton.hidden = !isSolving;
+
+      if (!isSolving) {
+        stopThinkingTimer();
+      }
+    }
+
+    function canUseWorker() {
+      return Boolean(window.Worker && window.Blob && window.URL && window.URL.createObjectURL);
+    }
+
+    function createSolverWorker() {
+      const source = [
+        '"use strict";',
+        "const KNIGHT_DELTAS = " + JSON.stringify(KNIGHT_DELTAS) + ";",
+        "const solveTour = " + solveTour.toString() + ";",
+        "const buildNeighbors = " + buildNeighbors.toString() + ";",
+        "const getCellId = " + getCellId.toString() + ";",
+        "self.onmessage = function(event) {",
+        "  try {",
+        "    const result = solveTour(event.data);",
+        "    if (result.status === 'solved') {",
+        "      self.postMessage(result, [result.path.buffer, result.grid.buffer]);",
+        "    } else {",
+        "      self.postMessage(result);",
+        "    }",
+        "  } catch (error) {",
+        "    self.postMessage({ status: 'error', message: error && error.message ? error.message : 'Solver failed.' });",
+        "  }",
+        "};"
+      ].join("\n");
+
+      const blob = new Blob([source], { type: "application/javascript" });
+      const url = window.URL.createObjectURL(blob);
+      const worker = new Worker(url);
+      worker.workerUrl = url;
+      return worker;
+    }
+
+    function stopWorker() {
+      if (!activeWorker) {
+        return;
+      }
+
+      activeWorker.terminate();
+
+      if (activeWorker.workerUrl) {
+        window.URL.revokeObjectURL(activeWorker.workerUrl);
+      }
+
+      activeWorker = null;
+    }
+
+    function solveTour(options) {
+      const rows = options.rows;
+      const columns = options.columns;
+      const cellCount = rows * columns;
+      const maxProcessingTimeMs = Math.max(1, options.maxProcessingTimeMs);
+      const useWarnsdorff = options.algorithm === "warnsdorfsRule";
+      const startedAt = performance.now();
+      const startCell = (options.startRow * columns) + options.startColumn;
+
+      if (cellCount < 1 || startCell < 0 || startCell >= cellCount) {
+        return {
+          status: "error",
+          message: "Invalid board."
+        };
+      }
+
+      const neighbors = buildNeighbors(rows, columns);
+      const grid = new Int32Array(cellCount);
+      const path = new Int32Array(cellCount);
+      const frames = new Array(cellCount);
+      let depth = 0;
+      let totalMoves = 1;
+      let backtracks = 0;
+      let checks = 0;
+
+      grid[startCell] = 1;
+      path[0] = startCell;
+      frames[0] = createFrame(startCell);
+
+      while (depth >= 0) {
+        if (depth === cellCount - 1) {
+          return {
+            backtracks,
+            columns,
+            durationMs: performance.now() - startedAt,
+            grid,
+            path,
+            rows,
+            status: "solved",
+            totalMoves
+          };
         }
 
-      }
-    }
-    else { // Don't use WarnsdorfsRule
-      for (let z = 0; z < knightMoves.length; z++) {
-
-        if (canMove(row + knightMoves[z].row, column + knightMoves[z].column) && findPath(row + knightMoves[z].row, column + knightMoves[z].column, index + 1)) {
-          return true;
+        checks += 1;
+        if ((checks & 16383) === 0 && performance.now() - startedAt > maxProcessingTimeMs) {
+          return {
+            backtracks,
+            durationMs: performance.now() - startedAt,
+            status: "timeout",
+            totalMoves
+          };
         }
 
-        if (maxProcessingTimeReached) {
-          break;
+        const frame = frames[depth];
+        if (frame.nextIndex >= frame.moves.length) {
+          grid[frame.cell] = 0;
+          frames[depth] = null;
+          backtracks += 1;
+          depth -= 1;
+          continue;
         }
 
+        const nextCell = frame.moves[frame.nextIndex];
+        frame.nextIndex += 1;
+
+        if (grid[nextCell] !== 0) {
+          continue;
+        }
+
+        depth += 1;
+        grid[nextCell] = depth + 1;
+        path[depth] = nextCell;
+        totalMoves += 1;
+        frames[depth] = createFrame(nextCell);
+      }
+
+      return {
+        backtracks,
+        durationMs: performance.now() - startedAt,
+        status: "noSolution",
+        totalMoves
+      };
+
+      function createFrame(cell) {
+        return {
+          cell,
+          moves: getCandidateMoves(cell),
+          nextIndex: 0
+        };
+      }
+
+      function getCandidateMoves(cell) {
+        const cellNeighbors = neighbors[cell];
+        const moves = [];
+
+        for (let index = 0; index < cellNeighbors.length; index += 1) {
+          const nextCell = cellNeighbors[index];
+          if (grid[nextCell] === 0) {
+            moves.push(nextCell);
+          }
+        }
+
+        if (useWarnsdorff && moves.length > 1) {
+          moves.sort((a, b) => {
+            const onwardDifference = countOnwardMoves(a) - countOnwardMoves(b);
+            return onwardDifference;
+          });
+        }
+
+        return moves;
+      }
+
+      function countOnwardMoves(cell) {
+        const cellNeighbors = neighbors[cell];
+        let count = 0;
+
+        for (let index = 0; index < cellNeighbors.length; index += 1) {
+          if (grid[cellNeighbors[index]] === 0) {
+            count += 1;
+          }
+        }
+
+        return count;
       }
     }
 
-    // Path not found -> backtrack
-    solutionGrid[row][column] = null;
-    solutionPath[pathNumber] = null;
-    pathNumber--;
-    backwardsMovements++;
-    return false;
-  }
+    function buildNeighbors(rows, columns) {
+      const cellCount = rows * columns;
+      const neighbors = new Array(cellCount);
 
-  canMove = (row, col) => {
-    return ((row >= 0) && (col >= 0) && (row < numRows) && (col < numColumns) && (solutionGrid[row][col] == null));
-  }
+      for (let row = 0; row < rows; row += 1) {
+        for (let column = 0; column < columns; column += 1) {
+          const list = [];
 
-  getNextPossibleMovesCount = (row, col) => {
+          for (let moveIndex = 0; moveIndex < KNIGHT_DELTAS.length; moveIndex += 1) {
+            const targetRow = row + KNIGHT_DELTAS[moveIndex][0];
+            const targetColumn = column + KNIGHT_DELTAS[moveIndex][1];
 
-    let count = 0;
+            if (targetRow >= 0 && targetColumn >= 0 && targetRow < rows && targetColumn < columns) {
+              list.push(getCellId(targetRow, targetColumn, columns));
+            }
+          }
 
-    for (let i = 0; i < knightMoves.length; i++) {
-      let targetRow = row + knightMoves[i].row;
-      let targetCol = col + knightMoves[i].column;
+          neighbors[getCellId(row, column, columns)] = list;
+        }
+      }
 
-      if (canMove(targetRow, targetCol)) {
-        count++;
+      return neighbors;
+    }
+
+    function syncInputBounds() {
+      const rows = clampForBounds(readInteger(elements.numRows), 1, APP_LIMITS.maxDimension);
+      const columns = clampForBounds(readInteger(elements.numColumns), 1, APP_LIMITS.maxDimension);
+
+      elements.numRows.max = String(APP_LIMITS.maxDimension);
+      elements.numColumns.max = String(APP_LIMITS.maxDimension);
+      elements.maxProcessingTimeInSeconds.max = String(APP_LIMITS.maxSeconds);
+      elements.showSolutionDelay.max = String(APP_LIMITS.maxReplayDelay);
+      elements.startRowIndex.max = String(rows);
+      elements.startColumnIndex.max = String(columns);
+
+      clampInputValue(elements.startRowIndex, 1, rows);
+      clampInputValue(elements.startColumnIndex, 1, columns);
+    }
+
+    function clampInputValue(input, min, max) {
+      const value = readInteger(input);
+
+      if (!Number.isInteger(value)) {
+        return;
+      }
+
+      if (value < min) {
+        input.value = String(min);
+      } else if (value > max) {
+        input.value = String(max);
       }
     }
 
-    return count;
-  }
-
-  showSolution = () => {
-
-    getElementById('result-solve-seconds').innerHTML = ((endTime - startTime) / 1000).toFixed(4);
-    getElementById('result-cell-count').innerHTML = numRows + "x" + numColumns + " = " + (numRows * numColumns);
-    getElementById('result-moves-count').innerHTML = totalMovesCount.toLocaleString();
-
-    let movesPerSecond = Math.floor(totalMovesCount / ((endTime - startTime) / 1000));
-    getElementById('result-moves-per-second').innerHTML = movesPerSecond.toLocaleString();
-
-    getElementById('result-backwards-moves').innerHTML = backwardsMovements.toLocaleString();
-
-    hideElementById('start-screen');
-    emptyElementById('board');
-    showElementById('result-screen');
-
-    if (showSolutionDelay > 0) {
-
-      displayBoard(false);
-
-      for (let pathIndex = 1; pathIndex < solutionPath.length; pathIndex++) {
-        showSolutionTimeoutMs += showSolutionDelay;
-
-        let newCellId = solutionPath[pathIndex].row + "_" + solutionPath[pathIndex].column;
-        let newCellPathNumber = solutionGrid[solutionPath[pathIndex].row][solutionPath[pathIndex].column];
-        moveKnight(newCellId, newCellPathNumber);
-      }
-    }
-    else {
-      displayBoard(true);
-    }
-  }
-
-  displayBoard = (showCellValues) => {
-
-    let board = getElementById('board');
-
-    let firstRow = document.createElement('div');
-
-    let firstRowContent = "<div class='cell index-cell-col-empty'>&nbsp;</div>";
-    for (let topColIndex = 0; topColIndex < numColumns; topColIndex++) {
-      firstRowContent += "<div class='cell index-cell-col'>" + (topColIndex + 1) + "</div>";
-    }
-
-    firstRow.innerHTML = firstRowContent;
-
-    board.appendChild(firstRow)
-
-    for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
-      let row = document.createElement('div');
-
-      let rowContent = "<div class='cell index-cell-row'><div class='number'>" + (rowIndex + 1) + "</div></div>";
-      for (let colIndex = 0; colIndex < numColumns; colIndex++) {
-        rowContent += "<div id='" + rowIndex + "_" + colIndex + "' class='cell " + (showCellValues ? "used-cell" : "") + "'>" + (showCellValues && solutionGrid[rowIndex][colIndex] != null ? solutionGrid[rowIndex][colIndex] : "&nbsp;") + "</div>";
+    function clampForBounds(value, min, max) {
+      if (!Number.isInteger(value)) {
+        return min;
       }
 
-      row.innerHTML = rowContent;
-
-      board.appendChild(row)
+      return Math.min(max, Math.max(min, value));
     }
-  }
 
-  moveKnight = (targetCellId, targetPathNumber) => {
-
-    let timeoutId = setTimeout(() => {
-
-      let oldKnightCell = getFirstElementByClass('active-knight-cell');
-      if (oldKnightCell) {
-        oldKnightCell.classList.remove('active-knight-cell');
-        oldKnightCell.classList.add('used-cell');
-        oldKnightCell.innerText = oldKnightCell.getAttribute('data-path-number');
+    function readInteger(input) {
+      if (input.value.trim() === "") {
+        return NaN;
       }
 
-      let newKnightCell = getElementById(targetCellId);
-      newKnightCell.classList.add('active-knight-cell');
-      newKnightCell.setAttribute('data-path-number', targetPathNumber);
-
-
-    }, showSolutionTimeoutMs);
-
-    allTimeoutsList.push(timeoutId);
-  }
-
-  goToStartScreen = () => {
-    clearAllTimeoutsList();
-
-    hideElementById('result-screen');
-    hideElementById('info');
-    hideElementById('error');
-
-    showElementById('start-screen');
-
-    getElementById('solve-button').removeAttribute("disabled");
-  }
-
-  onError = (htmlText) => {
-
-    hideElementById('info');
-
-    clearAllTimeoutsList();
-
-    getElementById('solve-button').removeAttribute("disabled");
-
-    getElementById('error').innerHTML = htmlText
-
-    showElementById('error');
-
-  }
-
-  showElementById = (id) => {
-    getElementById(id).style.display = 'block';
-  }
-
-  hideElementById = (id) => {
-    getElementById(id).style.display = 'none';
-  }
-
-  getElementById = (id) => {
-    return document.getElementById(id);
-  }
-
-  getElementValueById = (id) => {
-    return document.getElementById(id).value;
-  }
-
-  getFirstElementByClass = (className) => {
-    let result = document.getElementsByClassName(className);
-    if (result.length) {
-      return result[0];
+      const value = Number(input.value);
+      return Number.isInteger(value) ? value : NaN;
     }
-    return null
-  }
 
-  emptyElementById = (id) => {
-    getElementById(id).innerHTML = '';
-  }
-
-  clearAllTimeoutsList = () => {
-    for (let i = 0; i < allTimeoutsList.length; i++) {
-      clearTimeout(allTimeoutsList[i]);
+    function showInfo(message) {
+      elements.info.textContent = message;
+      elements.info.hidden = false;
     }
-  }
-</script>
+
+    function startThinkingTimer() {
+      stopThinkingTimer();
+      thinkingStartedAt = performance.now();
+      updateThinkingTimer();
+      thinkingTimerId = window.setInterval(updateThinkingTimer, 100);
+    }
+
+    function updateThinkingTimer() {
+      if (!thinkingStartedAt) {
+        return;
+      }
+
+      const seconds = ((performance.now() - thinkingStartedAt) / 1000).toFixed(1);
+      showInfo("Thinking... (" + seconds + " seconds)");
+    }
+
+    function stopThinkingTimer() {
+      if (thinkingTimerId) {
+        window.clearInterval(thinkingTimerId);
+      }
+
+      thinkingTimerId = 0;
+      thinkingStartedAt = 0;
+    }
+
+    function showError(message) {
+      stopThinkingTimer();
+      hideNotice(elements.info);
+      elements.error.textContent = message;
+      elements.error.hidden = false;
+      elements.solveButton.disabled = false;
+    }
+
+    function hideNotice(element) {
+      element.textContent = "";
+      element.hidden = true;
+    }
+
+    function getMovesPerSecond(totalMoves, durationMs) {
+      return Math.floor(totalMoves / Math.max(durationMs / 1000, 0.001));
+    }
+
+    function formatSeconds(durationMs) {
+      return (durationMs / 1000).toFixed(4) + "s";
+    }
+
+    function getCellId(row, column, columns) {
+      return (row * columns) + column;
+    }
+
+    function toCamelCase(id) {
+      return id.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    }
+  </script>
+</body>
 
 </html>
