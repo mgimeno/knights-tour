@@ -14,7 +14,7 @@ This project lets you select how big the chessboard is and tries to find a knigh
 
 2 different algorithms have been implemented. Both use backtracking. 
 
-### 1.- Fixed set of moves
+### 1.- Fixed backtracking
 
 The knight always tries to move in the same order. 
 
@@ -35,4 +35,4 @@ Obviously, this also means the faster your device is, the faster the calculation
 
 ## Development
 
-This project has been developed in a single file (aside from images) using just plain Javascript, CSS and HTML with no libraries/dependencies.
+Single HTML file (aside from images) for simplicity/portability using vanilla Javascript, CSS and HTML with no libraries/dependencies.
