@@ -49,6 +49,7 @@ workflows:
   deploy:
     jobs:
       - deploy:
+          serial-group: << pipeline.project.slug >>/<< pipeline.parameters.project-folder >>/prod-deploy
           filters:
             branches:
               only: main
