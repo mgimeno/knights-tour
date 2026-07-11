@@ -16,7 +16,8 @@ parameters:
 jobs:
   deploy:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:24.15.0
+    resource_class: arm-medium
     working_directory: ~/<< pipeline.parameters.project-folder >>
     steps:
       - checkout
